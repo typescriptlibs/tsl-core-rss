@@ -1,0 +1,11 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "declaration": true,
+        "sourceMap": true,
+        "module": "AMD",
+        "moduleResolution": "Node",
+        "outFile": "../amd/tsl-core-rss.js",
+        "rootDir": "./"
+    }
+}

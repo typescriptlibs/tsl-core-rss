@@ -1,0 +1,49 @@
+{
+    "private": true,
+    "author": "TypeScriptLibs and Contributers",
+    "description": "TypeScript Library for Atom and RSS",
+    "license": "MIT",
+    "name": "tsl-core-rss",
+    "type": "module",
+    "version": "0.1.0",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "bugs": "https://github.com/typescriptlibs/tsl-core-rss/issues",
+    "homepage": "https://typescriptlibs.org/tsl-core-rss/",
+    "repository": "https://github.com/typescriptlibs/tsl-core-rss.git",
+    "devDependencies": {
+        "@types/node": "~18.16.0",
+        "@typescriptlibs/amd": "^1.2.2",
+        "@typescriptlibs/tst": "^0.1.0",
+        "husky": "~9.0.11",
+        "tsl-core-rss": "./",
+        "tsl-core-xml": "^0.4.0",
+        "typescript": "~5.3.3"
+    },
+    "engines": {
+        "node": ">=18.16.0"
+    },
+    "files": [
+        "amd/",
+        "lib/",
+        "AUTHORS.md",
+        "CHANGELOG.md",
+        "LICENSE.md",
+        "README.md"
+    ],
+    "keywords": [
+        "TypeScript",
+        "XML"
+    ],
+    "peerDependencies": {
+        "tsl-core-xml": ">=0.4.0"
+    },
+    "scripts": {
+        "build": "npm run clean && npm run build:amd && npm run build:lib",
+        "build:amd": "tsc -p src/tsconfig-amd.json",
+        "build:lib": "tsc -p src/tsconfig.json",
+        "clean": "rm -rf lib/ tst-run/",
+        "test": "npm run build && npx tst --verbose tst/",
+        "watch": "npm run build -- --watch"
+    }
+}
