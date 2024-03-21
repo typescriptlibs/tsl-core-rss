@@ -1,7 +1,7 @@
 {
     "private": true,
     "author": "TypeScriptLibs and Contributers",
-    "description": "TypeScript Library for Atom and RSS",
+    "description": "TypeScript Library for RSS",
     "license": "MIT",
     "name": "tsl-core-rss",
     "type": "module",
@@ -32,7 +32,8 @@
     ],
     "keywords": [
         "TypeScript",
-        "XML"
+        "RSS",
+        "Atom"
     ],
     "peerDependencies": {
         "tsl-core-xml": ">=0.4.0"
