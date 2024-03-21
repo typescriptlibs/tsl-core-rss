@@ -9,37 +9,9 @@
   You can get a copy of the License at https://typescriptlibs.org/LICENSE.txt
 
 \*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
-
-
-/* *
- *
- *  Imports
- *
- * */
-
-
-import Channel from './Channel.js';
-
-import { XMLTag } from 'tsl-core-xml';
-
-
-/* *
- *
- *  Declarations
- *
- * */
-
-
-export interface Source extends XMLTag {
-    innerXML?: Array<Channel>;
-}
-
-
-/* *
- *
- *  Default Export
- *
- * */
-
-
-export default Source;
+import RSS from './RSS.js';
+export * from './Channel.js';
+export * from './Item.js';
+export * from './RSS.js';
+export * from './Side.js';
+export default RSS;
