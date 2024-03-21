@@ -1,7 +1,8 @@
-RSS TypeScript Library
-======================
+TypeScript Library for RSS
+==========================
 
-This package provides simple ways to create and read RSS feeds.
+This package provides simple ways to create and read RSS feeds. It supports any
+format of RSS, RDF, and Atom.
 
 
 
