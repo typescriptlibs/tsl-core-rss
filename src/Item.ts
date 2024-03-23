@@ -114,7 +114,7 @@ export namespace Item {
                 switch ( xmlChild.tag ) {
                     case 'enclosure':
                     case 'source':
-                        item.enclosure = xmlChild.attributes.url;
+                        item[xmlChild.tag] = xmlChild.attributes.url;
                         continue;
                 }
             }

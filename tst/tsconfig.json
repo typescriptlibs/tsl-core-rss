@@ -1,7 +1,7 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
-        "outDir": "../tst-run",
+        "outDir": "../tst-run/",
         "rootDir": "./",
         "paths": {
             "tsl-core-rss": [
