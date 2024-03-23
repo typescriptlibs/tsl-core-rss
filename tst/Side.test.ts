@@ -36,7 +36,7 @@ test( 'Test Side.parseSide with RSS 0.91 feed', ( assert: test.Assert ) => {
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2a.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.tag,
+        side?.tag,
         'rss',
         'Side should be of RSS type.'
     );
@@ -60,7 +60,7 @@ test( 'Test Side.parseSide with RSS 0.92 feed', ( assert: test.Assert ) => {
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2b.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.tag,
+        side?.tag,
         'rss',
         'Side should be of RSS type.'
     );
@@ -84,7 +84,7 @@ test( 'Test Side.parseSide with RSS 2.0 feed', ( assert: test.Assert ) => {
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2c.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.tag,
+        side?.tag,
         'rss',
         'Side should be of RSS type.'
     );

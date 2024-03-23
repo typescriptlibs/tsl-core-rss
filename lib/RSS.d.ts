@@ -18,6 +18,9 @@ import Side from './Side.js';
  *
  * @return
  * Returns a Promise of the parsed Side tree of the RSS document.
+ *
+ * @throws
+ * Throws the response, if not a valid RSS document.
  */
 export declare function fetchRSS(url: (string | URL)): Promise<Side>;
 /**
@@ -27,9 +30,9 @@ export declare function fetchRSS(url: (string | URL)): Promise<Side>;
  * The text string of the RSS document.
  *
  * @return
- * Returns the parsed Side tree of the RSS document.
+ * Returns the parsed Side tree of the RSS document, or `undefined`.
  */
-export declare function parseRSS(text: string): Side;
+export declare function parseRSS(text: string): (Side | undefined);
 declare const _default: {
     fetchRSS: typeof fetchRSS;
     parseRSS: typeof parseRSS;

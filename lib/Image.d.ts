@@ -10,41 +10,35 @@
 
 \*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
 import * as XML from 'tsl-core-xml';
-export interface Item extends XML.XMLTag {
-    author?: string;
-    category?: Array<string>;
-    comments?: string;
-    content?: string;
+export interface Image extends XML.XMLTag {
     description?: string;
-    enclosures?: Array<string>;
-    guid?: string;
+    height?: number;
     link?: string;
-    pubDate?: Date;
-    source?: string;
-    tag: ('entry' | 'item');
+    tag: ('icon' | 'image' | 'logo');
     title?: string;
-    upDate?: Date;
+    url?: string;
+    width?: number;
 }
-export declare namespace Item {
+export declare namespace Image {
     /**
-     * Tests an object or value for the structure of the Item tag.
+     * Tests an object or value for the structure of the Image tag.
      *
      * @param obj
      * Unknown object or value to test.
      *
      * @return
-     * `true`, if the object is structured like the Item tag.
+     * `true`, if the object is structured like the Image tag.
      */
-    function isItem(obj: unknown): obj is Item;
+    function isImage(obj: unknown): obj is Image;
     /**
-     * Parses an RSS item (or Atom entry).
+     * Parses an RSS channel image.
      *
      * @param xml
      * The XML tag to parse.
      *
      * @return
-     * Returns the parsed Item of the RSS item (or Atom entry), or `undefined`.
+     * Returns the parsed Image tag of the RSS channel, or `undefined`.
      */
-    function parseItem(xmlTag: XML.XMLTag): (Item | undefined);
+    function parseImage(xmlTag: XML.XMLTag): (Image | undefined);
 }
-export default Item;
+export default Image;

@@ -37,6 +37,12 @@ export interface Side extends XML.XMLTag {
 
 
     /**
+     * Base URL of the side. Used for relative links.
+     */
+    base?: string;
+
+
+    /**
      * Side Channels with groups of information. Usually only one Channel in a
      * single language and topic can be found.
      */
@@ -173,14 +179,11 @@ export namespace Side {
      * The XML string or XML node(s) of the RSS document.
      *
      * @return
-     * Returns the parsed Side tree of the RSS document.
+     * Returns the parsed Side tree of the RSS document, or `undefined`.
      */
     export function parseSide (
         xml: ( string | XML.XMLNode | Array<XML.XMLNode> )
-    ): Side {
-        const side: Side = {
-            tag: 'rss'
-        };
+    ): ( Side | undefined ) {
 
         if ( typeof xml === 'string' ) {
             xml = XML.XMLTree.parse( xml ).roots;
@@ -190,39 +193,50 @@ export namespace Side {
             xml = [xml];
         }
 
-        for ( const xmlNode of xml ) {
+        for ( let xmlNode of xml ) {
 
             if ( !isSide( xmlNode ) ) {
                 continue;
             }
 
-            if ( xmlNode.attributes?.version ) {
-                side.version = xmlNode.attributes.version;
+            if ( xmlNode.attributes ) {
+                for ( const name in xmlNode.attributes ) {
+                    switch ( name ) {
+                        case 'base':
+                        case 'xml:base':
+                            xmlNode.base = xmlNode.attributes[name];
+                            continue;
+                        case 'version':
+                            xmlNode[name] = xmlNode.attributes[name];
+                            continue;
+                    }
+                }
             }
 
-            if ( xmlNode.tag === 'feed' ) {
-                side.channels = side.channels || [];
-                side.channels.push( Channel.parseChannel( xmlNode ) );
-                side.tag = 'feed';
-                continue;
+            if ( !xmlNode.innerXML ) {
+                return xmlNode;
             }
 
-            for ( const xmlChild of ( xmlNode.innerXML || [] ) ) {
+            let channel: ( Channel | undefined );
+
+            for ( const xmlChild of xmlNode.innerXML ) {
 
                 if ( !XML.isXMLTag( xmlChild ) ) {
                     continue;
                 }
 
-                if ( Channel.isChannel( xmlChild ) ) {
-                    side.channels = side.channels || [];
-                    side.channels.push( Channel.parseChannel( xmlChild ) );
+                channel = Channel.parseChannel( xmlChild );
+
+                if ( channel ) {
+                    xmlNode.channels = xmlNode.channels || [];
+                    xmlNode.channels.push( channel );
                 }
 
             }
 
+            return xmlNode;
         }
 
-        return side;
     }
 
 

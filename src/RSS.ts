@@ -36,11 +36,21 @@ import Side from './Side.js';
  *
  * @return
  * Returns a Promise of the parsed Side tree of the RSS document.
+ *
+ * @throws
+ * Throws the response, if not a valid RSS document.
  */
 export async function fetchRSS (
     url: ( string | URL )
 ): Promise<Side> {
-    return Side.parseSide( await ( await fetch( url ) ).text() );
+    const response = await fetch( url );
+    const side = Side.parseSide( await response.text() );
+
+    if ( !side ) {
+        throw response;
+    }
+
+    return side;
 }
 
 
@@ -51,11 +61,11 @@ export async function fetchRSS (
  * The text string of the RSS document.
  *
  * @return
- * Returns the parsed Side tree of the RSS document.
+ * Returns the parsed Side tree of the RSS document, or `undefined`.
  */
 export function parseRSS (
     text: string
-): Side {
+): ( Side | undefined ) {
     return Side.parseSide( text );
 }
 

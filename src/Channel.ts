@@ -18,6 +18,8 @@
  * */
 
 
+import Image from './Image.js';
+
 import Item from './Item.js';
 
 import * as XML from 'tsl-core-xml';
@@ -31,11 +33,12 @@ import * as XML from 'tsl-core-xml';
 
 
 export interface Channel extends XML.XMLTag {
-    cloud?: URL;
+    cloud?: string;
     copyright?: string;
     description?: string;
     docs?: string;
     generator?: string;
+    image?: Image;
     items?: Array<Item>;
     language?: string;
     lastBuildDate?: Date;
@@ -103,72 +106,91 @@ export namespace Channel {
      */
     export function parseChannel (
         xmlTag: XML.XMLTag
-    ): Channel {
-        const channel: Channel = {
-            tag: 'channel'
-        };
+    ): ( Channel | undefined ) {
 
-        if ( xmlTag.tag === 'feed' ) {
-            channel.tag === 'feed';
+        if ( !isChannel( xmlTag ) ) {
+            return;
         }
 
-        for ( const xmlChild of ( xmlTag.innerXML || [] ) ) {
+        if ( !xmlTag.innerXML ) {
+            return xmlTag;
+        }
+
+        let image: ( Image | undefined );
+        let item: ( Item | undefined );
+
+        for ( const xmlChild of xmlTag.innerXML ) {
 
             if ( !XML.isXMLTag( xmlChild ) ) {
                 continue;
             }
 
-            if ( Item.isItem( xmlChild ) ) {
-                channel.items = channel.items || [];
-                channel.items.push( Item.parseItem( xmlChild ) );
-                continue;
-            }
-
-            if ( xmlChild.attributes ) {
-                switch ( xmlChild.tag ) {
-                    case 'cloud':
-                        channel.cloud = new URL(
+            switch ( xmlChild.tag ) {
+                case 'cloud':
+                    if ( xmlChild.attributes ) {
+                        xmlTag.cloud = new URL(
                             xmlChild.attributes.path,
                             xmlChild.attributes.protocol + '://' +
                             xmlChild.attributes.domain + ':' +
                             xmlChild.attributes.port
+                        ).href;
+                    }
+                    continue;
+                case 'entry':
+                case 'item':
+                    item = Item.parseItem( xmlChild );
+                    if ( item ) {
+                        xmlTag.items = xmlTag.items || [];
+                        xmlTag.items.push( item );
+                    }
+                    continue;
+                case 'image':
+                case 'logo':
+                    image = Image.parseImage( xmlChild );
+                    if ( image ) {
+                        xmlTag.image = image;
+                    }
+                    continue;
+                case 'link':
+                    if ( xmlChild.attributes?.rel !== 'self' ) {
+                        xmlTag.link = (
+                            xmlChild.innerXML?.join( ' ' ).trim() ||
+                            xmlChild.attributes?.url
                         );
-                        continue;
-                    case 'link':
-                        channel.link = xmlChild.attributes.href;
-                        continue;
-                }
+                    }
+                    continue;
             }
 
-            if ( xmlChild.innerXML ) {
-                switch ( xmlChild.tag ) {
-                    case 'copyright':
-                    case 'description':
-                    case 'docs':
-                    case 'generator':
-                    case 'link':
-                    case 'managingEditor':
-                    case 'subtitle':
-                    case 'title':
-                    case 'webMaster':
-                        channel[xmlChild.tag] = xmlChild.innerXML.join( ' ' ).trim();
-                        continue;
-                    case 'language':
-                        channel[xmlChild.tag] = xmlChild.innerXML.join( ' ' ).trim().toLowerCase();
-                        continue;
-                    case 'lastBuildDate':
-                    case 'pubDate':
-                        channel[xmlChild.tag] = new Date( Date.parse( xmlChild.innerXML.join( ' ' ).trim() ) );
-                        continue;
-                    case 'ttl':
-                        channel[xmlChild.tag] = parseFloat( xmlChild.innerXML.join( ' ' ).trim() );
-                        continue;
-                }
+            if ( !xmlChild.innerXML ) {
+                continue;
+            }
+
+            switch ( xmlChild.tag ) {
+                case 'copyright':
+                case 'description':
+                case 'docs':
+                case 'generator':
+                case 'managingEditor':
+                case 'subtitle':
+                case 'title':
+                case 'webMaster':
+                    xmlTag[xmlChild.tag] = xmlChild.innerXML.join( ' ' ).trim();
+                    continue;
+                case 'language':
+                    xmlTag[xmlChild.tag] = xmlChild.innerXML.join( ' ' ).trim().toLowerCase();
+                    continue;
+                case 'lastBuildDate':
+                case 'pubDate':
+                    xmlTag[xmlChild.tag] = new Date( Date.parse( xmlChild.innerXML.join( ' ' ).trim() ) );
+                    continue;
+                case 'ttl':
+                    xmlTag[xmlChild.tag] = parseFloat( xmlChild.innerXML.join( ' ' ).trim() );
+                    continue;
             }
 
         }
 
-        return channel;
+        return xmlTag;
     }
 
 

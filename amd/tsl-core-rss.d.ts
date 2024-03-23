@@ -1,3 +1,49 @@
+declare module "Image" {
+    /*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*\
+    
+      RSS TypeScript Library
+    
+      Copyright (c) TypeScriptLibs and Contributors
+    
+      Licensed under the MIT License.
+      You may not use this file except in compliance with the License.
+      You can get a copy of the License at https://typescriptlibs.org/LICENSE.txt
+    
+    \*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
+    import * as XML from 'tsl-core-xml';
+    export interface Image extends XML.XMLTag {
+        description?: string;
+        height?: number;
+        link?: string;
+        tag: ('icon' | 'image' | 'logo');
+        title?: string;
+        url?: string;
+        width?: number;
+    }
+    export namespace Image {
+        /**
+         * Tests an object or value for the structure of the Image tag.
+         *
+         * @param obj
+         * Unknown object or value to test.
+         *
+         * @return
+         * `true`, if the object is structured like the Image tag.
+         */
+        function isImage(obj: unknown): obj is Image;
+        /**
+         * Parses an RSS channel image.
+         *
+         * @param xml
+         * The XML tag to parse.
+         *
+         * @return
+         * Returns the parsed Image tag of the RSS channel, or `undefined`.
+         */
+        function parseImage(xmlTag: XML.XMLTag): (Image | undefined);
+    }
+    export default Image;
+}
 declare module "Item" {
     /*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*\
     
@@ -17,7 +63,7 @@ declare module "Item" {
         comments?: string;
         content?: string;
         description?: string;
-        enclosure?: string;
+        enclosures?: Array<string>;
         guid?: string;
         link?: string;
         pubDate?: Date;
@@ -44,9 +90,9 @@ declare module "Item" {
          * The XML tag to parse.
          *
          * @return
-         * Returns the parsed Item of the RSS item (or Atom entry).
+         * Returns the parsed Item of the RSS item (or Atom entry), or `undefined`.
          */
-        function parseItem(xmlTag: XML.XMLTag): Item;
+        function parseItem(xmlTag: XML.XMLTag): (Item | undefined);
     }
     export default Item;
 }
@@ -62,14 +108,16 @@ declare module "Channel" {
       You can get a copy of the License at https://typescriptlibs.org/LICENSE.txt
     
     \*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
+    import Image from "Image";
     import Item from "Item";
     import * as XML from 'tsl-core-xml';
     export interface Channel extends XML.XMLTag {
-        cloud?: URL;
+        cloud?: string;
         copyright?: string;
         description?: string;
         docs?: string;
         generator?: string;
+        image?: Image;
         items?: Array<Item>;
         language?: string;
         lastBuildDate?: Date;
@@ -102,7 +150,7 @@ declare module "Channel" {
          * @return
          * Returns the parsed Channel tree of the RSS channel.
          */
-        function parseChannel(xmlTag: XML.XMLTag): Channel;
+        function parseChannel(xmlTag: XML.XMLTag): (Channel | undefined);
     }
     export default Channel;
 }
@@ -124,6 +172,10 @@ declare module "Side" {
      *
      */
     export interface Side extends XML.XMLTag {
+        /**
+         * Base URL of the side. Used for relative links.
+         */
+        base?: string;
         /**
          * Side Channels with groups of information. Usually only one Channel in a
          * single language and topic can be found.
@@ -196,9 +248,9 @@ declare module "Side" {
          * The XML string or XML node(s) of the RSS document.
          *
          * @return
-         * Returns the parsed Side tree of the RSS document.
+         * Returns the parsed Side tree of the RSS document, or `undefined`.
          */
-        function parseSide(xml: (string | XML.XMLNode | Array<XML.XMLNode>)): Side;
+        function parseSide(xml: (string | XML.XMLNode | Array<XML.XMLNode>)): (Side | undefined);
     }
     export default Side;
 }
@@ -223,6 +275,9 @@ declare module "RSS" {
      *
      * @return
      * Returns a Promise of the parsed Side tree of the RSS document.
+     *
+     * @throws
+     * Throws the response, if not a valid RSS document.
      */
     export function fetchRSS(url: (string | URL)): Promise<Side>;
     /**
@@ -232,9 +287,9 @@ declare module "RSS" {
      * The text string of the RSS document.
      *
      * @return
-     * Returns the parsed Side tree of the RSS document.
+     * Returns the parsed Side tree of the RSS document, or `undefined`.
      */
-    export function parseRSS(text: string): Side;
+    export function parseRSS(text: string): (Side | undefined);
     const _default: {
         fetchRSS: typeof fetchRSS;
         parseRSS: typeof parseRSS;

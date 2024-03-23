@@ -36,7 +36,7 @@ test( 'Test Item.parseItem with RSS 0.91 feed', ( assert: test.Assert ) => {
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2a.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.channels?.length,
+        side?.channels?.length,
         1,
         'Side should contain one channel.'
     );
@@ -66,7 +66,7 @@ test( 'Test Item.parseItem with RSS 0.91 feed', ( assert: test.Assert ) => {
     assert.strictEqual(
         firstItem.link,
         'http://writetheweb.com/read.php?item=24',
-        'Channel item should contain expected link.'
+        'Channel item should contain the expected link.'
     );
 
 } );
@@ -76,7 +76,7 @@ test( 'Test Item.parseItem with RSS 0.92 feed', ( assert: test.Assert ) => {
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2b.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.channels?.length,
+        side?.channels?.length,
         1,
         'Side should contain one channel.'
     );
@@ -98,9 +98,23 @@ test( 'Test Item.parseItem with RSS 0.92 feed', ( assert: test.Assert ) => {
     );
 
     assert.strictEqual(
-        firstItem.enclosure,
+        firstItem.enclosures?.length,
+        1,
+        'Channel item should contain the expected amount of media enclosures.'
+    );
+
+    assert.strictEqual(
+        firstItem.enclosures[0],
         'http://www.scripting.com/mp3s/weatherReportDicksPicsVol7.mp3',
         'Channel item should contain the expected media enclosure.'
+    );
+
+    const secondItem = firstChannel.items[1];
+
+    assert.strictEqual(
+        secondItem.source,
+        'http://scriptingnews.userland.com/xml/scriptingNews2.xml',
+        'Channel item should contain the expected source URL.'
     );
 
 } );
@@ -110,7 +124,7 @@ test( 'Test Item.parseItem with RSS 2.0 feed', ( assert: test.Assert ) => {
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2c.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.channels?.length,
+        side?.channels?.length,
         1,
         'Side should contain one channel.'
     );

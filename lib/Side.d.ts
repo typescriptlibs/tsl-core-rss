@@ -16,6 +16,10 @@ import * as XML from 'tsl-core-xml';
  */
 export interface Side extends XML.XMLTag {
     /**
+     * Base URL of the side. Used for relative links.
+     */
+    base?: string;
+    /**
      * Side Channels with groups of information. Usually only one Channel in a
      * single language and topic can be found.
      */
@@ -87,8 +91,8 @@ export declare namespace Side {
      * The XML string or XML node(s) of the RSS document.
      *
      * @return
-     * Returns the parsed Side tree of the RSS document.
+     * Returns the parsed Side tree of the RSS document, or `undefined`.
      */
-    function parseSide(xml: (string | XML.XMLNode | Array<XML.XMLNode>)): Side;
+    function parseSide(xml: (string | XML.XMLNode | Array<XML.XMLNode>)): (Side | undefined);
 }
 export default Side;

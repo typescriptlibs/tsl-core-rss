@@ -36,7 +36,7 @@ test( 'Test Channel.parseChannel with RSS 0.91 feed', ( assert: test.Assert ) =>
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2a.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.channels?.length,
+        side?.channels?.length,
         1,
         'Side should contain one channel.'
     );
@@ -58,7 +58,7 @@ test( 'Test Channel.parseChannel with RSS 0.91 feed', ( assert: test.Assert ) =>
     assert.strictEqual(
         firstChannel.link,
         'http://writetheweb.com',
-        'Side channel should have expected link.'
+        'Side channel should have the expected link.'
     );
 
 } );
@@ -68,7 +68,7 @@ test( 'Test Channel.parseChannel with RSS 0.92 feed', ( assert: test.Assert ) =>
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2b.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.channels?.length,
+        side?.channels?.length,
         1,
         'Side should contain one channel.'
     );
@@ -88,7 +88,7 @@ test( 'Test Channel.parseChannel with RSS 0.92 feed', ( assert: test.Assert ) =>
     );
 
     assert.strictEqual(
-        firstChannel.cloud?.href,
+        firstChannel.cloud,
         'xml-rpc://data.ourfavoritesongs.com:80/RPC2',
         'Side channel should have expected cloud information.'
     );
@@ -100,7 +100,7 @@ test( 'Test Channel.parseChannel with RSS 2.0 feed', ( assert: test.Assert ) => 
     const side = RSS.parseRSS( FS.readFileSync( 'tst-data/rss2c.xml', 'utf8' ) );
 
     assert.strictEqual(
-        side.channels?.length,
+        side?.channels?.length,
         1,
         'Side should contain one channel.'
     );

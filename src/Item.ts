@@ -34,7 +34,7 @@ export interface Item extends XML.XMLTag {
     comments?: string;
     content?: string;
     description?: string;
-    enclosure?: string;
+    enclosures?: Array<string>;
     guid?: string;
     link?: string;
     pubDate?: Date;
@@ -91,32 +91,48 @@ export namespace Item {
      * The XML tag to parse.
      *
      * @return
-     * Returns the parsed Item of the RSS item (or Atom entry).
+     * Returns the parsed Item of the RSS item (or Atom entry), or `undefined`.
      */
     export function parseItem (
         xmlTag: XML.XMLTag
-    ): Item {
-        const item: Item = {
-            tag: 'item'
-        };
+    ): ( Item | undefined ) {
 
-        if ( xmlTag.tag === 'entry' ) {
-            item.tag = 'entry';
+        if ( !isItem( xmlTag ) ) {
+            return;
         }
 
-        for ( const xmlChild of ( xmlTag.innerXML || [] ) ) {
+        if ( !xmlTag.innerXML ) {
+            return xmlTag;
+        }
+
+        for ( const xmlChild of xmlTag.innerXML ) {
 
             if ( !XML.isXMLTag( xmlChild ) ) {
                 continue;
             }
 
-            if ( xmlChild.attributes ) {
-                switch ( xmlChild.tag ) {
-                    case 'enclosure':
-                    case 'source':
-                        item[xmlChild.tag] = xmlChild.attributes.url;
-                        continue;
-                }
+            switch ( xmlChild.tag ) {
+                case 'enclosure':
+                case 'link':
+                case 'source':
+                    const link = (
+                        xmlChild.attributes?.href ||
+                        xmlChild.attributes?.url ||
+                        xmlChild.innerXML?.join( ' ' ).trim()
+                    );
+                    if ( link ) {
+                        if ( xmlChild.tag === 'enclosure' ) {
+                            xmlTag.enclosures = xmlTag.enclosures || [];
+                            xmlTag.enclosures.push( link );
+                        }
+                        else {
+                            xmlTag[xmlChild.tag] = link;
+                            if ( xmlChild.tag === 'link' ) {
+                                xmlTag.guid = xmlTag.guid || xmlTag.link;
+                            }
+                        }
+                    }
+                    continue;
             }
 
             if ( xmlChild.innerXML ) {
@@ -124,39 +140,34 @@ export namespace Item {
                     case 'author':
                     case 'comments':
                     case 'description':
-                    case 'guid':
                     case 'title':
-                        item[xmlChild.tag] = xmlChild.innerXML.join( ' ' ).trim();
+                        xmlTag[xmlChild.tag] = xmlChild.innerXML.join( ' ' ).trim();
                         continue;
                     case 'category':
-                        item.category = item.category || [];
-                        item.category.push( xmlChild.innerXML.join( ' ' ).trim() );
+                        xmlTag.category = xmlTag.category || [];
+                        xmlTag.category.push( xmlChild.innerXML.join( ' ' ).trim() );
                         continue;
                     case 'content':
-                    case 'content:encoded':
-                        item.content = xmlChild.innerXML.join( ' ' ).trim();
+                        xmlTag.content = xmlChild.innerXML.join( ' ' ).trim();
                         continue;
+                    case 'guid':
                     case 'id':
-                        item.guid = xmlChild.innerXML.join( ' ' ).trim();
-                        continue;
-                    case 'link':
-                        item.link = xmlChild.innerXML.join( ' ' ).trim();
-                        item.guid = item.guid || item.link;
+                        xmlTag.guid = xmlChild.innerXML.join( ' ' ).trim();
                         continue;
                     case 'pubDate':
                     case 'published':
-                        item.pubDate = new Date( Date.parse( xmlChild.innerXML.join( ' ' ).trim() ) );
-                        item.upDate = item.upDate || item.pubDate;
+                        xmlTag.pubDate = new Date( Date.parse( xmlChild.innerXML.join( ' ' ).trim() ) );
+                        xmlTag.upDate = xmlTag.upDate || xmlTag.pubDate;
                         continue;
                     case 'upDate':
-                        item.upDate = new Date( Date.parse( xmlChild.innerXML.join( ' ' ).trim() ) );
+                        xmlTag.upDate = new Date( Date.parse( xmlChild.innerXML.join( ' ' ).trim() ) );
                         continue;
                 }
             }
 
         }
 
-        return item;
+        return xmlTag;
     }
 
 

@@ -9,14 +9,16 @@
   You can get a copy of the License at https://typescriptlibs.org/LICENSE.txt
 
 \*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
+import Image from './Image.js';
 import Item from './Item.js';
 import * as XML from 'tsl-core-xml';
 export interface Channel extends XML.XMLTag {
-    cloud?: URL;
+    cloud?: string;
     copyright?: string;
     description?: string;
     docs?: string;
     generator?: string;
+    image?: Image;
     items?: Array<Item>;
     language?: string;
     lastBuildDate?: Date;
@@ -49,6 +51,6 @@ export declare namespace Channel {
      * @return
      * Returns the parsed Channel tree of the RSS channel.
      */
-    function parseChannel(xmlTag: XML.XMLTag): Channel;
+    function parseChannel(xmlTag: XML.XMLTag): (Channel | undefined);
 }
 export default Channel;

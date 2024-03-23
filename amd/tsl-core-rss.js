@@ -23,6 +23,108 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
   You can get a copy of the License at https://typescriptlibs.org/LICENSE.txt
 
 \*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
+define("Image", ["require", "exports", "tsl-core-xml"], function (require, exports, XML) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Image = void 0;
+    /* *
+     *
+     *  Namespace
+     *
+     * */
+    var Image;
+    (function (Image) {
+        /**
+         * Tests an object or value for the structure of the Image tag.
+         *
+         * @param obj
+         * Unknown object or value to test.
+         *
+         * @return
+         * `true`, if the object is structured like the Image tag.
+         */
+        function isImage(obj) {
+            const image = obj;
+            return (XML.isXMLTag(image) &&
+                (image.tag === 'icon' ||
+                    image.tag === 'image' ||
+                    image.tag === 'logo') &&
+                (typeof image.description === 'undefined' ||
+                    typeof image.description === 'string') &&
+                (typeof image.height === 'undefined' ||
+                    typeof image.height === 'number') &&
+                (typeof image.link === 'undefined' ||
+                    typeof image.link === 'string') &&
+                (typeof image.title === 'undefined' ||
+                    typeof image.title === 'string') &&
+                (typeof image.url === 'undefined' ||
+                    typeof image.url === 'string') &&
+                (typeof image.width === 'undefined' ||
+                    typeof image.width === 'number'));
+        }
+        Image.isImage = isImage;
+        /**
+         * Parses an RSS channel image.
+         *
+         * @param xml
+         * The XML tag to parse.
+         *
+         * @return
+         * Returns the parsed Image tag of the RSS channel, or `undefined`.
+         */
+        function parseImage(xmlTag) {
+            var _a;
+            if (!isImage(xmlTag)) {
+                return;
+            }
+            if (!xmlTag.innerXML) {
+                return xmlTag;
+            }
+            if (xmlTag.tag !== 'image') {
+                xmlTag.url = (_a = xmlTag.innerXML) === null || _a === void 0 ? void 0 : _a.join(' ').trim();
+                return xmlTag;
+            }
+            for (const xmlChild of xmlTag.innerXML) {
+                if (!XML.isXMLTag(xmlChild)) {
+                    continue;
+                }
+                if (xmlChild.innerXML) {
+                    switch (xmlChild.tag) {
+                        case 'description':
+                        case 'link':
+                        case 'title':
+                        case 'url':
+                            xmlTag[xmlChild.tag] = xmlChild.innerXML.join(' ').trim();
+                            continue;
+                        case 'height':
+                        case 'width':
+                            xmlTag[xmlChild.tag] = parseFloat(xmlChild.innerXML.join(' ').trim());
+                            continue;
+                    }
+                }
+            }
+            return xmlTag;
+        }
+        Image.parseImage = parseImage;
+    })(Image || (exports.Image = Image = {}));
+    /* *
+     *
+     *  Default Export
+     *
+     * */
+    exports.default = Image;
+});
+/*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*\
+
+  RSS TypeScript Library
+
+  Copyright (c) TypeScriptLibs and Contributors
+
+  Licensed under the MIT License.
+  You may not use this file except in compliance with the License.
+  You can get a copy of the License at https://typescriptlibs.org/LICENSE.txt
+
+\*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
 define("Item", ["require", "exports", "tsl-core-xml"], function (require, exports, XML) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -61,63 +163,72 @@ define("Item", ["require", "exports", "tsl-core-xml"], function (require, export
          * The XML tag to parse.
          *
          * @return
-         * Returns the parsed Item of the RSS item (or Atom entry).
+         * Returns the parsed Item of the RSS item (or Atom entry), or `undefined`.
          */
         function parseItem(xmlTag) {
-            const item = {
-                tag: 'item'
-            };
-            if (xmlTag.tag === 'entry') {
-                item.tag = 'entry';
+            var _a, _b, _c;
+            if (!isItem(xmlTag)) {
+                return;
             }
-            for (const xmlChild of (xmlTag.innerXML || [])) {
+            if (!xmlTag.innerXML) {
+                return xmlTag;
+            }
+            for (const xmlChild of xmlTag.innerXML) {
                 if (!XML.isXMLTag(xmlChild)) {
                     continue;
                 }
-                if (xmlChild.attributes) {
-                    switch (xmlChild.tag) {
-                        case 'enclosure':
-                        case 'source':
-                            item.enclosure = xmlChild.attributes.url;
-                            continue;
-                    }
+                switch (xmlChild.tag) {
+                    case 'enclosure':
+                    case 'link':
+                    case 'source':
+                        const link = (((_a = xmlChild.attributes) === null || _a === void 0 ? void 0 : _a.href) ||
+                            ((_b = xmlChild.attributes) === null || _b === void 0 ? void 0 : _b.url) ||
+                            ((_c = xmlChild.innerXML) === null || _c === void 0 ? void 0 : _c.join(' ').trim()));
+                        if (link) {
+                            if (xmlChild.tag === 'enclosure') {
+                                xmlTag.enclosures = xmlTag.enclosures || [];
+                                xmlTag.enclosures.push(link);
+                            }
+                            else {
+                                xmlTag[xmlChild.tag] = link;
+                                if (xmlChild.tag === 'link') {
+                                    xmlTag.guid = xmlTag.guid || xmlTag.link;
+                                }
+                            }
+                        }
+                        continue;
                 }
                 if (xmlChild.innerXML) {
                     switch (xmlChild.tag) {
                         case 'author':
                         case 'comments':
                         case 'description':
-                        case 'guid':
                         case 'title':
-                            item[xmlChild.tag] = xmlChild.innerXML.join(' ').trim();
+                            xmlTag[xmlChild.tag] = xmlChild.innerXML.join(' ').trim();
                             continue;
                         case 'category':
-                            item.category = item.category || [];
-                            item.category.push(xmlChild.innerXML.join(' ').trim());
+                            xmlTag.category = xmlTag.category || [];
+                            xmlTag.category.push(xmlChild.innerXML.join(' ').trim());
                             continue;
                         case 'content':
-                        case 'content:encoded':
-                            item.content = xmlChild.innerXML.join(' ').trim();
+                            xmlTag.content = xmlChild.innerXML.join(' ').trim();
                             continue;
+                        case 'guid':
                         case 'id':
-                            item.guid = xmlChild.innerXML.join(' ').trim();
-                            continue;
-                        case 'link':
-                            item.link = xmlChild.innerXML.join(' ').trim();
-                            item.guid = item.guid || item.link;
+                            xmlTag.guid = xmlChild.innerXML.join(' ').trim();
                             continue;
                         case 'pubDate':
                         case 'published':
-                            item.pubDate = new Date(Date.parse(xmlChild.innerXML.join(' ').trim()));
-                            item.upDate = item.upDate || item.pubDate;
+                            xmlTag.pubDate = new Date(Date.parse(xmlChild.innerXML.join(' ').trim()));
+                            xmlTag.upDate = xmlTag.upDate || xmlTag.pubDate;
                             continue;
                         case 'upDate':
-                            item.upDate = new Date(Date.parse(xmlChild.innerXML.join(' ').trim()));
+                            xmlTag.upDate = new Date(Date.parse(xmlChild.innerXML.join(' ').trim()));
                             continue;
                     }
                 }
             }
-            return item;
+            return xmlTag;
         }
         Item.parseItem = parseItem;
     })(Item || (exports.Item = Item = {}));
@@ -139,7 +250,7 @@ define("Item", ["require", "exports", "tsl-core-xml"], function (require, export
   You can get a copy of the License at https://typescriptlibs.org/LICENSE.txt
 
 \*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*i*/
-define("Channel", ["require", "exports", "Item", "tsl-core-xml"], function (require, exports, Item_js_1, XML) {
+define("Channel", ["require", "exports", "Image", "Item", "tsl-core-xml"], function (require, exports, Image_js_1, Item_js_1, XML) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Channel = void 0;
@@ -180,60 +291,76 @@ define("Channel", ["require", "exports", "Item", "tsl-core-xml"], function (requ
          * Returns the parsed Channel tree of the RSS channel.
          */
         function parseChannel(xmlTag) {
-            const channel = {
-                tag: 'channel'
-            };
-            if (xmlTag.tag === 'feed') {
-                channel.tag === 'feed';
+            var _a, _b, _c;
+            if (!isChannel(xmlTag)) {
+                return;
             }
-            for (const xmlChild of (xmlTag.innerXML || [])) {
+            if (!xmlTag.innerXML) {
+                return xmlTag;
+            }
+            let image;
+            let item;
+            for (const xmlChild of xmlTag.innerXML) {
                 if (!XML.isXMLTag(xmlChild)) {
                     continue;
                 }
-                if (Item_js_1.default.isItem(xmlChild)) {
-                    channel.items = channel.items || [];
-                    channel.items.push(Item_js_1.default.parseItem(xmlChild));
+                switch (xmlChild.tag) {
+                    case 'cloud':
+                        if (xmlChild.attributes) {
+                            xmlTag.cloud = new URL(xmlChild.attributes.path, xmlChild.attributes.protocol + '://' +
+                                xmlChild.attributes.domain + ':' +
+                                xmlChild.attributes.port).href;
+                        }
+                        continue;
+                    case 'entry':
+                    case 'item':
+                        item = Item_js_1.default.parseItem(xmlChild);
+                        if (item) {
+                            xmlTag.items = xmlTag.items || [];
+                            xmlTag.items.push(item);
+                        }
+                        continue;
+                    case 'image':
+                    case 'logo':
+                        image = Image_js_1.default.parseImage(xmlChild);
+                        if (image) {
+                            xmlTag.image = image;
+                        }
+                        continue;
+                    case 'link':
+                        if (((_a = xmlChild.attributes) === null || _a === void 0 ? void 0 : _a.rel) !== 'self') {
+                            xmlTag.link = (((_b = xmlChild.innerXML) === null || _b === void 0 ? void 0 : _b.join(' ').trim()) ||
+                                ((_c = xmlChild.attributes) === null || _c === void 0 ? void 0 : _c.url));
+                        }
+                        continue;
+                }
+                if (!xmlChild.innerXML) {
                     continue;
                 }
-                if (xmlChild.attributes) {
-                    switch (xmlChild.tag) {
-                        case 'cloud':
-                            channel.cloud = new URL(xmlChild.attributes.path, xmlChild.attributes.protocol + '://' +
-                                xmlChild.attributes.domain + ':' +
-                                xmlChild.attributes.port);
-                            continue;
-                        case 'link':
-                            channel.link = xmlChild.attributes.href;
-                            continue;
-                    }
-                }
-                if (xmlChild.innerXML) {
-                    switch (xmlChild.tag) {
-                        case 'copyright':
-                        case 'description':
-                        case 'docs':
-                        case 'generator':
-                        case 'link':
-                        case 'managingEditor':
-                        case 'subtitle':
-                        case 'title':
-                        case 'webMaster':
-                            channel[xmlChild.tag] = xmlChild.innerXML.join(' ').trim();
-                            continue;
-                        case 'language':
-                            channel[xmlChild.tag] = xmlChild.innerXML.join(' ').trim().toLowerCase();
-                            continue;
-                        case 'lastBuildDate':
-                        case 'pubDate':
-                            channel[xmlChild.tag] = new Date(Date.parse(xmlChild.innerXML.join(' ').trim()));
-                            continue;
-                        case 'ttl':
-                            channel[xmlChild.tag] = parseFloat(xmlChild.innerXML.join(' ').trim());
-                            continue;
-                    }
+                switch (xmlChild.tag) {
+                    case 'copyright':
+                    case 'description':
+                    case 'docs':
+                    case 'generator':
+                    case 'managingEditor':
+                    case 'subtitle':
+                    case 'title':
+                    case 'webMaster':
+                        xmlTag[xmlChild.tag] = xmlChild.innerXML.join(' ').trim();
+                        continue;
+                    case 'language':
+                        xmlTag[xmlChild.tag] = xmlChild.innerXML.join(' ').trim().toLowerCase();
+                        continue;
+                    case 'lastBuildDate':
+                    case 'pubDate':
+                        xmlTag[xmlChild.tag] = new Date(Date.parse(xmlChild.innerXML.join(' ').trim()));
+                        continue;
+                    case 'ttl':
+                        xmlTag[xmlChild.tag] = parseFloat(xmlChild.innerXML.join(' ').trim());
+                        continue;
                 }
             }
-            return channel;
+            return xmlTag;
         }
         Channel.parseChannel = parseChannel;
     })(Channel || (exports.Channel = Channel = {}));
@@ -342,43 +469,48 @@ define("Side", ["require", "exports", "Channel", "tsl-core-xml"], function (requ
          * The XML string or XML node(s) of the RSS document.
          *
          * @return
-         * Returns the parsed Side tree of the RSS document.
+         * Returns the parsed Side tree of the RSS document, or `undefined`.
          */
         function parseSide(xml) {
-            var _a;
-            const side = {
-                tag: 'rss'
-            };
             if (typeof xml === 'string') {
                 xml = XML.XMLTree.parse(xml).roots;
             }
             if (!(xml instanceof Array)) {
                 xml = [xml];
             }
-            for (const xmlNode of xml) {
+            for (let xmlNode of xml) {
                 if (!isSide(xmlNode)) {
                     continue;
                 }
-                if ((_a = xmlNode.attributes) === null || _a === void 0 ? void 0 : _a.version) {
-                    side.version = xmlNode.attributes.version;
+                if (xmlNode.attributes) {
+                    for (const name in xmlNode.attributes) {
+                        switch (name) {
+                            case 'base':
+                            case 'xml:base':
+                                xmlNode.base = xmlNode.attributes[name];
+                                continue;
+                            case 'version':
+                                xmlNode[name] = xmlNode.attributes[name];
+                                continue;
+                        }
+                    }
                 }
-                if (xmlNode.tag === 'feed') {
-                    side.channels = side.channels || [];
-                    side.channels.push(Channel_js_1.default.parseChannel(xmlNode));
-                    side.tag = 'feed';
-                    continue;
+                if (!xmlNode.innerXML) {
+                    return xmlNode;
                 }
-                for (const xmlChild of (xmlNode.innerXML || [])) {
+                let channel;
+                for (const xmlChild of xmlNode.innerXML) {
                     if (!XML.isXMLTag(xmlChild)) {
                         continue;
                     }
-                    if (Channel_js_1.default.isChannel(xmlChild)) {
-                        side.channels = side.channels || [];
-                        side.channels.push(Channel_js_1.default.parseChannel(xmlChild));
+                    channel = Channel_js_1.default.parseChannel(xmlChild);
+                    if (channel) {
+                        xmlNode.channels = xmlNode.channels || [];
+                        xmlNode.channels.push(channel);
                     }
                 }
+                return xmlNode;
             }
-            return side;
         }
         Side.parseSide = parseSide;
     })(Side || (exports.Side = Side = {}));
@@ -417,9 +549,17 @@ define("RSS", ["require", "exports", "Side"], function (require, exports, Side_j
      *
      * @return
      * Returns a Promise of the parsed Side tree of the RSS document.
+     *
+     * @throws
+     * Throws the response, if not a valid RSS document.
      */
     async function fetchRSS(url) {
-        return Side_js_1.default.parseSide(await (await fetch(url)).text());
+        const response = await fetch(url);
+        const side = Side_js_1.default.parseSide(await response.text());
+        if (!side) {
+            throw response;
+        }
+        return side;
     }
     exports.fetchRSS = fetchRSS;
     /**
@@ -429,7 +569,7 @@ define("RSS", ["require", "exports", "Side"], function (require, exports, Side_j
      * The text string of the RSS document.
      *
      * @return
-     * Returns the parsed Side tree of the RSS document.
+     * Returns the parsed Side tree of the RSS document, or `undefined`.
      */
     function parseRSS(text) {
         return Side_js_1.default.parseSide(text);
